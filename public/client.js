@@ -49,8 +49,8 @@ async function startCamera() {
         
         // Wait for video to be loaded
         video.onloadedmetadata = () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            // Set canvas dimensions to match video
+            resizeCanvas();
             startButton.disabled = true;
             stopButton.disabled = false;
             isRunning = true;
@@ -63,6 +63,24 @@ async function startCamera() {
     } catch (error) {
         console.error('Error accessing camera:', error);
         alert('Could not access the camera. Please ensure you have given permission.');
+    }
+}
+
+// Resize canvas to match current video dimensions
+function resizeCanvas() {
+    if (video.videoWidth && video.videoHeight) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+    } else {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+    }
+}
+
+// Handle window resize
+function handleResize() {
+    if (isRunning) {
+        resizeCanvas();
     }
 }
 
@@ -177,6 +195,7 @@ async function detectEntities() {
 // Event listeners
 startButton.addEventListener('click', startCamera);
 stopButton.addEventListener('click', stopCamera);
+window.addEventListener('resize', handleResize);
 
 // Initialize when page loads
 window.addEventListener('load', init);
