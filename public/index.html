@@ -5,12 +5,29 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Real time surveilance camera entity detection</title>
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <!-- COCO-SSD model -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 </head>
 <body>
-    <p>Hello World!</p>
+    <div class="container">
+        <h1>Real time surveilance camera entity detection</h1>
+        <div class="video-container">
+            <video id="video" autoplay></video>
+            <canvas id="canvas"></canvas>
+        </div>
+        <div class="controls">
+            <button id="start">Start</button>
+            <button id="stop">Stop</button>
+        </div>
+        <div id="detection-list" class="detection-list">
+            <h3>Detected Entities:</h3>
+            <p>No entities detected</p>
+        </div>
+    </div>
 
-
-     <script src="../index.js"></script>
+    <script src="client.js"></script>
 </body>
 </html>

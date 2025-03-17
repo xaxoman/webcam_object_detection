@@ -1,16 +1,17 @@
 {
-  "name": "webcam_object_detection",
+  "name": "realtime_security_camera",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon --legacy-watch index.js --ext js,html,css,ts,jsx,tsx"
+    "start": "npx nodemon --legacy-watch server.js --ext js,html,css,ts,jsx,tsx"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.21.2"
   },
   "devDependencies": {
