@@ -8,6 +8,10 @@ const detectionList = document.getElementById('detection-list');
 // Canvas context
 const ctx = canvas.getContext('2d');
 
+// Check if device is mobile
+const isMobile = window.matchMedia("(max-width: 768px)").matches;
+console.log("Is mobile device:", isMobile);
+
 // Variables
 let stream = null;
 let isRunning = false;
@@ -77,8 +81,20 @@ function resizeCanvas() {
     }
 }
 
-// Handle window resize
+// Handle window resize and orientation changes
 function handleResize() {
+    // Update mobile detection on resize
+    const wasMobile = isMobile;
+    const newIsMobile = window.matchMedia("(max-width: 768px)").matches;
+    
+    // If mobile status changed, reload the page to apply new settings
+    if (wasMobile !== newIsMobile && isRunning) {
+        // Stop camera before reload
+        stopCamera();
+        // Wait a moment then reload
+        setTimeout(() => window.location.reload(), 500);
+    }
+    
     if (isRunning) {
         resizeCanvas();
     }
@@ -141,9 +157,12 @@ async function detectEntities() {
         // Save the current transformation matrix
         ctx.save();
         
-        // Apply mirror transformation for drawing (to match the CSS transform)
-        ctx.scale(-1, 1);
-        ctx.translate(-canvas.width, 0);
+        // Apply mirror transformation only on desktop/laptop
+        if (!isMobile) {
+            // Apply mirror transformation for drawing (to match the CSS transform)
+            ctx.scale(-1, 1);
+            ctx.translate(-canvas.width, 0);
+        }
         
         // Draw bounding boxes and labels
         ctx.strokeStyle = '#00FFFF';
@@ -161,21 +180,26 @@ async function detectEntities() {
         
         // Process each prediction
         predictions.forEach(prediction => {
-            // Draw bounding box (adjusted for mirrored view)
+            // Draw bounding box
             const [x, y, width, height] = prediction.bbox;
-            // Calculate mirrored x position
-            const mirroredX = canvas.width - x - width;
-            ctx.strokeRect(mirroredX, y, width, height);
+            
+            let drawX = x;
+            // Calculate mirrored x position for desktop only
+            if (!isMobile) {
+                drawX = canvas.width - x - width; // Mirrored X position
+            }
+            
+            ctx.strokeRect(drawX, y, width, height);
             
             // Draw label background
             const label = `${prediction.class} (${Math.round(prediction.score * 100)}%)`;
             const textWidth = ctx.measureText(label).width;
             ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-            ctx.fillRect(mirroredX, y - 25, textWidth + 10, 25);
+            ctx.fillRect(drawX, y - 25, textWidth + 10, 25);
             
             // Draw label text
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillText(label, mirroredX + 5, y - 7);
+            ctx.fillText(label, drawX + 5, y - 7);
             
             // Add to detection list
             if (detectionList) {
@@ -196,6 +220,12 @@ async function detectEntities() {
 startButton.addEventListener('click', startCamera);
 stopButton.addEventListener('click', stopCamera);
 window.addEventListener('resize', handleResize);
+
+// Listen for orientation changes
+window.addEventListener('orientationchange', () => {
+    // Wait for orientation change to complete
+    setTimeout(handleResize, 200);
+});
 
 // Initialize when page loads
 window.addEventListener('load', init);
